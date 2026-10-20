@@ -38,6 +38,7 @@ await lstat(join(root, '.git')).catch(() => { throw Error('Public distribution r
 if (await realpath(git(['rev-parse', '--show-toplevel']).trim()) !== await realpath(root)) throw Error('Refusing to audit a parent Git repository');
 if (git(['rev-parse', '--is-shallow-repository']).trim() !== 'false') throw Error('Public history audit requires full history and tags (fetch-depth: 0)');
 const current = git(['ls-files', '--cached', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean);
+const tracked = new Set(git(['ls-files', '--cached', '-z']).split('\0').filter(Boolean));
 for (const path of new Set(current)) {
   checkPath(path, 'Git working files');
   const full = join(root, path);
@@ -112,6 +113,7 @@ try {
   for (const file of packed[0].files) if (files.get(file.path)?.size !== file.size) throw Error(`npm tar inventory mismatch: ${file.path}`);
   if (packed[0].files.length !== files.size) throw Error('npm tar inventory count mismatch');
   for (const [path, file] of files) {
+    if (!tracked.has(path)) throw Error(`Distribution file is missing from the Git index: ${path}`);
     const source = await readFile(join(root, path));
     const same = path === 'package.json'
       ? JSON.stringify(JSON.parse(source)) === JSON.stringify(JSON.parse(file.bytes))
