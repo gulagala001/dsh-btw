@@ -1,49 +1,106 @@
-# DSH BTW
+<a name="readme-top"></a>
 
-English | [中文](README.zh.md)
+<h1 align="center">DSH BTW</h1>
 
-Ask side questions in DeepSeek Harness while your main task keeps running. BTW uses the current conversation as context and keeps its answers in a compact, dismissible popover above the main composer.
+<p align="center"><strong>主任务继续，旁边随时问一句。</strong><br>DeepSeek Harness 插件</p>
 
-![Side question and history menu in DSH](docs/images/side-chat.png)
+<p align="center"><strong>简体中文</strong> · <a href="README_EN.md">English</a></p>
 
-*Example with synthetic conversation content.*
+<p align="center">
+  <a href="https://github.com/gulagala001/dsh-btw/releases/tag/v0.1.0-dsh.0.2.1-rc.2"><img alt="0.1.0" src="https://img.shields.io/badge/release-0.1.0-0969da?style=flat-square"></a>
+  <a href="https://github.com/gulagala001/dsh-btw/releases/tag/v0.1.0-dsh.0.2.1-rc.2"><img alt="本版插件包下载次数，非用户数" src="https://img.shields.io/github/downloads/gulagala001/dsh-btw/v0.1.0-dsh.0.2.1-rc.2/gulagala001-dsh-btw-0.1.0-dsh.0.2.1-rc.2.tgz?style=flat-square&amp;label=package%20downloads&amp;displayAssetName=false&amp;color=0969da"></a>
+  <a href="#readme-install"><img alt="DSH 0.2.1-rc.2" src="https://img.shields.io/badge/DSH-0.2.1--rc.2-0969da?style=flat-square"></a>
+  <a href="https://github.com/gulagala001/dsh-btw/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/gulagala001/dsh-btw?style=flat-square&amp;color=0969da"></a>
+</p>
 
-## Usage
+<p align="center"><a href="#readme-install"><strong>开始使用</strong></a> · <a href="docs/install.zh.md">完整文档</a> · <a href="https://github.com/gulagala001/dsh-btw/issues">反馈</a></p>
 
-- Type `/btw your question` to ask directly. Type `/btw` without a question to open the popover and revisit side-chat history.
-- The popover uses native DSH components for Markdown, code copying and follow-up questions. Its history icon opens a list of previous questions, including when opened with `/btw your question`.
-- **Stop side chat** cancels only the side request. **Esc** or closing the popover hides it while the answer continues. Clicking outside returns to the main interface.
-- Each main conversation has its own latest 20 side exchanges. These live only in the current window's memory and disappear on reload, window closure, or plugin removal.
+<p align="center"><a href="docs/images/side-chat.png"><img src="docs/images/side-chat.png" alt="旁聊与历史列表 / Side chat and history" width="880"></a></p>
 
-BTW preserves the main conversation's message prefix, last-used model configuration, tool declarations and cache affinity, then appends the side question to allow provider cache reuse. Actual cache hits depend on the provider. The snapshot includes completed tool results; a main reply still being generated is not included. Previously finished conversations are supported too.
+*DSH 原生界面中的合成演示对话。*
 
-Side requests never execute tools or append their questions and answers to the main conversation. They use your existing model provider and incur normal usage. Send at least one main message before using `/btw`.
+下载徽章只统计所链接发行版中的插件压缩包，不代表安装人数或活跃用户数。
 
-The slash command preserves a draft containing attachments and explains that side questions accept text only. Attachments are not discarded.
+<a name="readme-install"></a>
 
-## Installation
+## 快速开始
 
-For **DeepSeek Harness 0.2.1-rc.2**, **Cordis 4.0.5** and **Node.js 22.19+**. Open **Plugins → Add Plugin** and paste:
+**适用环境：** DSH **0.2.1-rc.2**, Node.js **22.19+**.
+
+旁聊使用现有模型服务并产生正常用量，不执行工具。记录仅保存在当前窗口内存，刷新后消失。
+
+### 1. 安装
+
+打开实际使用的 DSH 实例，在 **插件 → ＋ 添加插件** 中粘贴：
 
 ```text
 https://github.com/gulagala001/dsh-btw/releases/download/v0.1.0-dsh.0.2.1-rc.2/gulagala001-dsh-btw-0.1.0-dsh.0.2.1-rc.2.tgz
 ```
 
-Restart that instance after its tasks finish. Package identity: `@gulagala001/dsh-btw`. Packages are distributed through GitHub Releases.
+等当前任务结束后，按宿主提示启用或完整重启该实例，沿用原 profile 与数据。其他宿主、升级和卸载见[安装指南](docs/install.zh.md) · [SHA256SUMS](https://github.com/gulagala001/dsh-btw/releases/download/v0.1.0-dsh.0.2.1-rc.2/SHA256SUMS).
 
-[Installation guide](docs/install.md) · [Release notes](docs/releases/v0.1.0-dsh.0.2.1-rc.2.md)
+### 2. 先试这一件事
 
-Validated with the native Web client on macOS. Windows, Linux and the Electron desktop shell have not been tested.
+先在主会话发送过一条消息，再输入：
 
-## Development
+```text
+/btw 用两句话解释刚才方案里最重要的取舍。
+```
 
-```sh
+**成功标志：** 输入框上方出现旁聊回复；主任务继续运行，旁聊不写入主对话历史。
+
+## 不打断主任务的旁聊
+
+- 输入 `/btw 问题` 直接提问；只输入 `/btw` 打开弹窗与历史列表。
+- 弹窗支持 Markdown、代码复制和继续提问，使用当前主会话已有上下文。
+- 停止旁聊只取消旁聊请求；Esc 或关闭按钮仅隐藏窗口，主任务继续。
+
+上下文快照包含已完成的工具结果，不包含正在生成的主回复。请求保留主会话的消息前缀、上次实际模型配置、工具声明及缓存关联，只追加旁聊内容；实际缓存命中由模型服务决定。旁聊不执行工具，也不写入主对话历史。
+
+## 常见问题
+
+<details>
+<summary>旁聊记录能保留多久？</summary>
+
+按主会话隔离，最多保留最近 20 条。记录只在当前窗口内存中，刷新、关闭窗口或停用插件后消失。
+
+</details>
+
+<details>
+<summary>为什么首次提问或带附件时不能直接旁聊？</summary>
+
+需先在主会话发送过消息以建立上下文。旁聊仅接收文字；输入框带附件时会保留草稿并提示，不丢弃附件。
+
+</details>
+
+<details>
+<summary>关闭弹窗后回答还在继续？</summary>
+
+关闭只隐藏界面。使用弹窗内停止操作取消该旁聊；不会停止主任务。
+
+</details>
+
+## 兼容、开发与许可
+
+匹配 DSH 0.2.1-rc.2、Cordis 4.0.5。已验证 macOS 原生 Web 客户端；Windows、Linux 与 Electron 桌面外壳未完成实机验证。安装标识为 `@gulagala001/dsh-btw`，从固定 GitHub Release 分发。
+
+```bash
 npm ci
 npm run build
 npm test
-npm pack
 ```
 
-The client imports `Menu`, `MenuSurface`, `Input`, `Button`, `MarkdownText` and `TextShimmer` from the host. Its only entry point, `/btw`, uses native input triggers. The server reads a detached session snapshot and makes an independent streaming request without a tool executor. Cold sessions are replayed only in memory without activating the main agent.
+前端使用 DSH 原生组件和输入扩展，后端读取只读上下文快照并发起独立流式请求。采用 [MIT](LICENSE)。
 
-[MIT license](LICENSE).
+## 文档与支持
+
+| 我想做什么 | 去哪里 |
+| --- | --- |
+| 安装、升级、卸载 | [安装指南](docs/install.zh.md) |
+| 了解使用方法与边界 | [使用文档](docs/install.zh.md) |
+| 查看版本变化 | [Releases](https://github.com/gulagala001/dsh-btw/releases) |
+| 反馈问题 | [Issues](https://github.com/gulagala001/dsh-btw/issues) |
+
+反馈时请提供完整 DSH／插件版本、实际入口、最小复现步骤，以及预期和实际表现；日志与截图先移除私人数据。
+
+<p align="center"><a href="#readme-top">返回顶部</a> · <a href="https://github.com/gulagala001/dsh-btw/releases">版本与下载</a> · <a href="https://github.com/gulagala001/dsh-btw/issues">反馈</a></p>
