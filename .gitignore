@@ -1,0 +1,13 @@
+node_modules/
+.local/
+*.tgz
+*.log
+.DS_Store
+.env*
+coverage/
+test-results/
+playwright-report/
+AGENTS.md
+CLAUDE.md
+PLAN.md
+AI_README.md
