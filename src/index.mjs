@@ -1,3 +1,4 @@
+import { acquireShared } from './shared.mjs';
 import { answer, sideMessages, validateQuestion } from './context.mjs';
 import { readSnapshot } from './snapshot.mjs';
 
@@ -24,7 +25,7 @@ async function readBody(req, signal) {
   }
 }
 
-export function apply(ctx) {
+export function install(ctx) {
   const running = new Map();
   const controllers = new Set();
   let disposed = false;
@@ -92,3 +93,5 @@ export function apply(ctx) {
     },
   }));
 }
+
+export const apply = ctx => acquireShared(ctx, 'server', { name, inject, apply: install });

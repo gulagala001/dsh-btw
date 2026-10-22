@@ -1,3 +1,4 @@
+import { acquireShared } from '../shared.mjs';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Button, Input, Menu, MenuSurface, MarkdownText, TextShimmer, Tooltip,
@@ -18,7 +19,7 @@ function Action({ label, icon: Icon, ...props }) {
   return <Tooltip label={label} side="top"><Button size="sm" variant="ghost" className="dsh-btw-action" aria-label={label} {...props}><Icon size={16} /></Button></Tooltip>;
 }
 
-export function apply(ctx) {
+function install(ctx) {
   const store = new SideChatStore();
   ctx.effect(() => {
     const style = document.createElement('style');
@@ -110,3 +111,5 @@ export function apply(ctx) {
   ctx.slots.register({ name: 'conversation.input.overlay', id: 'dsh-btw-panel', order: 90 },
     props => <Panel key={props.sessionId} sessionId={props.sessionId} />);
 }
+
+export const apply = ctx => acquireShared(ctx, 'client', { name, inject, apply: install });

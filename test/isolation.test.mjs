@@ -2,7 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { answer, sideMessages } from '../src/context.mjs';
 import { SideChatStore } from '../src/client/store.mjs';
-import { apply } from '../src/index.mjs';
+import { install, apply, inject } from '../src/index.mjs';
+import { Context } from '@deepseek-ai/cordis';
+import { acquireShared } from '../src/shared.mjs';
 import { PassThrough } from 'node:stream';
 import { EventEmitter } from 'node:events';
 
@@ -88,7 +90,7 @@ test('closing a side window preserves its stream; cancellation stays within that
 test('unload cancels an unfinished request body before any snapshot or model request', async () => {
   const disposers = [];
   let handler, touched = 0;
-  apply({
+  install({
     effect: factory => disposers.push(factory()),
     webServer: { register: route => { handler = route.handler; return () => {}; } },
     connection: { requestRejection: () => undefined },
@@ -106,4 +108,40 @@ test('unload cancels an unfinished request body before any snapshot or model req
   await pending;
   assert.equal(touched, 0);
   assert.equal(req.destroyed, true);
+});
+
+
+test('embedded and independent owners share one route and stop only after both unload', async t => {
+  const ctx = new Context();
+  t.after(() => ctx.fiber.dispose());
+  let registrations = 0, releases = 0;
+  for (const service of inject) ctx.reflect.provide(service,
+    service === 'webServer' ? { register() { registrations++; return () => { releases++; }; } } : {});
+  const embedded = ctx.plugin({ name: 'embedded-btw', inject, apply });
+  await embedded;
+  const standalone = ctx.plugin({ name: 'standalone-btw', inject, apply });
+  await standalone;
+  assert.equal(registrations, 1);
+  await embedded.dispose();
+  assert.equal(releases, 0);
+  await standalone.dispose();
+  assert.equal(releases, 1);
+  const remount = ctx.plugin({ name: 'embedded-btw', inject, apply });
+  await remount;
+  assert.equal(registrations, 2);
+  await remount.dispose();
+  assert.equal(releases, 2);
+});
+
+test('client owners preserve one input trigger and panel until the last owner unloads', async t => {
+  const ctx = new Context();
+  t.after(() => ctx.fiber.dispose());
+  let mounts = 0, active = 0;
+  const component = { apply(scope) { mounts++; scope.effect(() => { active++; return () => active--; }); } };
+  const plugin = name => ({ name, apply: scope => acquireShared(scope, 'client', component) });
+  const standalone = ctx.plugin(plugin('standalone-client')); await standalone;
+  const embedded = ctx.plugin(plugin('embedded-client')); await embedded;
+  assert.equal(mounts, 1); assert.equal(active, 1);
+  await standalone.dispose(); assert.equal(active, 1);
+  await embedded.dispose(); assert.equal(active, 0);
 });
