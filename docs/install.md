@@ -1,5 +1,7 @@
 # Install DSH BTW
 
+宿主构建以 `package.json` 的完整版本为准，当前源码默认 `0.2.1-rc.3`。每份构建对齐同版本 SDK、组件与依赖锁，安装入口按正式发行包的宿主版本选择。
+
 [中文](install.zh.md)
 
 Requires **DSH 0.2.1-rc.2**, **Cordis 4.0.5** and **Node.js 22.19+**. This build targets that exact host version.
