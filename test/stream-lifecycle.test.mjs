@@ -194,7 +194,7 @@ test('native runtime over HTTP completes before EOF, cancels only side calls and
   ctx.llm.registerAdapter(['fixture'], new Adapter());
   ctx.on('llm/stream', (options, next) => { if (isAgentLoopRequest(options)) mainLoopCalls++; return next(); }, { global: true });
   ctx.reflect.provide('sessions', { get: id => id === 'parent' ? session : undefined });
-  ctx.reflect.provide('sessionController', {});
+  ctx.reflect.provide('sessionQuery', {});
   ctx.reflect.provide('connection', { requestRejection: () => undefined });
   ctx.reflect.provide('webServer', { register(value) { assert.equal(route, undefined); route = value; return () => { route = undefined; }; } });
   const embedded = ctx.plugin({ name: 'embedded', inject: btw.inject, apply: btw.apply }); await embedded;
