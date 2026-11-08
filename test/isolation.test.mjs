@@ -8,6 +8,16 @@ import { acquireShared } from '../src/shared.mjs';
 import { PassThrough } from 'node:stream';
 import { EventEmitter } from 'node:events';
 
+test('plain-text host failures retain the draft and report the HTTP status', async () => {
+  const store = new SideChatStore(async () => new Response('not found', {status:404}));
+  store.update('main', {draft:'保留的问题'});
+  await assert.rejects(store.ask('main','保留的问题'), /HTTP 404/);
+  assert.equal(store.get('main').draft,'保留的问题');
+  assert.equal(store.isBusy('main'),false);
+  assert.match(store.get('main').entries[0].error,/HTTP 404/);
+  store.dispose();
+});
+
 test('snapshot closes pending tools without editing the source or losing completed results', () => {
   const source = [
     { role: 'system', content: [{ type: 'text', text: 'Main instructions' }] },
