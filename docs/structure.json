@@ -3,7 +3,7 @@
   "published": "0.1.8-dsh.0.2.2-rc.1",
   "repository": {
     "slug": "gulagala001/dsh-btw",
-    "description": "Context-aware side questions for DeepSeek Harness, with prompt cache reuse and a native composer popover.",
+    "description": "在 DSH 里随时问个侧问，不打断正在跑的任务，还能复用当前的提示词缓存。 Ask side questions in DeepSeek Harness without interrupting the current task, reusing the prompt cache.",
     "homepage": "",
     "topics": [
       "btw",

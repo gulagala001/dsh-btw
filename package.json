@@ -1,7 +1,7 @@
 {
   "name": "@gulagala001/dsh-btw",
   "version": "0.1.8-dsh.0.2.2-rc.1",
-  "description": "Ask side questions in DeepSeek Harness without interrupting the current task.",
+  "description": "Ask side questions in DeepSeek Harness without interrupting the current task, reusing the prompt cache.",
   "type": "module",
   "license": "MIT",
   "main": "src/index.mjs",
