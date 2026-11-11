@@ -159,6 +159,7 @@ test('native runtime over HTTP completes before EOF, cancels only side calls and
   session.append('user/message', createUserMessage({ source: { kind: 'user' }, content: [{ type: 'text', text: 'Main task' }] }), { surfaceOp: 'append' });
   session.append('request/header', { header: { config: { provider: 'fixture', model: 'fixture' } }, reason: 'initial' });
   const original = structuredClone(session.snapshotEvents()), prefix = session.deriveMessages();
+  const cleanup = Promise.withResolvers();
   let route, held = 0, mainLoopCalls = 0, started = 0, stopped = 0;
   const server = createServer((req, res) => {
     // Model a proxy that delivers the complete body but delays transport EOF.
@@ -188,7 +189,7 @@ test('native runtime over HTTP completes before EOF, cancels only side calls and
           options.signal.throwIfAborted();
         }
         yield { type: 'finish', reason: { kind: 'stop' } };
-      } finally { stopped++; }
+      } finally { if (started === 2 && question === 'Wait') await cleanup.promise; stopped++; }
     }
   }
   ctx.llm.registerAdapter(['fixture'], new Adapter());
@@ -212,10 +213,11 @@ test('native runtime over HTTP completes before EOF, cancels only side calls and
   await embedded.dispose();
   assert.equal(stopped, 1, 'the remaining owner must keep the active call');
   store.stop('parent');
-  await waitFor(() => !store.isBusy('parent') && stopped === 2);
+  await waitFor(() => !store.isBusy('parent'));
   assert.equal(store.get('parent').entries.at(-1).status, 'stopped');
   await store.ask('parent', 'Wait');
   await waitFor(() => store.get('parent').entries.at(-1).answer === 'Partial');
+  cleanup.resolve();
   await standalone.dispose();
   await waitFor(() => !store.isBusy('parent') && stopped === 3);
   assert.equal(store.get('parent').entries.at(-1).status, 'error');
