@@ -1,7 +1,5 @@
 # DSH BTW 0.1.12 · DSH 0.2.2-rc.3
 
-**未发布 / Unreleased.**
-
 [中文](#zh-0112) · [English](#en-0112)
 
 <a id="zh-0112"></a>
